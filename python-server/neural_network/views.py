@@ -161,7 +161,7 @@ def ann(request):
 
     seed = 2
     np.random.seed(seed)     
-    df = pd.read_csv('C:\\Users\\yangc\\Documents\\GitHub\\django-data-mining\\neural_network\\script\\suncor_full.csv')
+    df = pd.read_csv('C:\\Users\\yangc\\Documents\\GitHub\\PE\\python-server\\neural_network\\script\\suncor_full.csv')
     values=df.values[:,1:]
 
     n_days = 1
@@ -243,7 +243,7 @@ def lstm(request):
 
     seed = 2
     np.random.seed(seed)     
-    df = pd.read_csv('C:\\Users\\yangc\\Documents\\GitHub\\django-data-mining\\neural_network\\script\\suncor_full.csv')
+    df = pd.read_csv('C:\\Users\\yangc\\Documents\\GitHub\\PE\\python-server\\neural_network\\script\\suncor_full.csv')
     values=df.values[:,1:]
 
     n_days = 1

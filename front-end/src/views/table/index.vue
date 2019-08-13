@@ -1,131 +1,410 @@
 <template>
   <div>
     <el-dialog
-      title="Wells Data"
+      title="Table"
       :visible.sync="tableDialogVisible"
       width="70%"
       :modal-append-to-body="false"
       :before-close="closeTab"
-      top="2vh"
+      top="1vh"
     >
-      <el-table
-        :data="tableData"
-        stripe
-        border
-        height="75vh"
-        style="width: 100%"
-      >
+      <el-table :data="tableData" stripe border height="70vh" style="width: 100%">
+        <el-table-column type="index" />
         <el-table-column
-          type="index"
-        />
-        <el-table-column
-          prop="UWI"
-          label="UWI"
-          width="165"
-        />
-        <el-table-column
-          prop="Well Name"
-          label="Well Name"
+          v-for="item in columns"
+          :key="item.prop"
+          :prop="item.prop"
+          :label="item.label"
           width="160"
-        />
-        <el-table-column
-          prop="Well Operator"
-          label="Well Operator"
-          width="115"
-        />
-        <el-table-column
-          prop="Well Status"
-          label="Well Status"
-          width="110"
-        />
-        <el-table-column
-          prop="Province"
-          label="Province"
-        />
-        <el-table-column
-          prop="Class"
-          label="Class"
-        />
-        <el-table-column
-          prop="Drillers Total Depth"
-          label="Drillers Total Depth"
-          sortable
-          width="175"
-        />
-        <el-table-column
-          prop="Well Type"
-          label="Well Type"
-          width="100"
-        />
-        <el-table-column
-          prop="Pad"
-          label="Pad"
-          width="55"
-        />
-        <el-table-column
-          prop="Top Longitude"
-          label="Top Longitude"
-          width="120"
-        />
-        <el-table-column
-          prop="Top Latitude"
-          label="Top Latitude"
-          width="110"
-        />
-        <el-table-column
-          prop="Bottom Longitude"
-          label="Bottom Longitude"
-          width="145"
-        />
-        <el-table-column
-          prop="Bottom Latitude"
-          label="Bottom Latitude"
-          width="130"
         />
       </el-table>
       <span slot="footer" class="dialog-footer">
+        <el-select
+          v-model="table"
+          @change="changeSelected"
+          placeholder
+          size="medium"
+          style="width: 250px; margin-right: 500px"
+        >
+          <el-option
+            v-for="item in tableOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <el-button type="primary" @click="closeTab">Close</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
-import http from '@/utils/http'
+import http from "@/utils/http";
 export default {
-  name: 'Home',
+  name: "Home",
   data() {
     return {
-      input: '',
+      input: "",
       tableDialogVisible: false,
-      tableData: []
-    }
+      tableData: [],
+      table: "Wells",
+      columns: [
+        {
+          prop: "UWI",
+          label: "UWI"
+        },
+        {
+          prop: "Well Name",
+          label: "Well Name"
+        },
+        {
+          prop: "Well Operator",
+          label: "Well Operator"
+        },
+        {
+          prop: "Well Status",
+          label: "Well Status"
+        },
+        {
+          prop: "Province",
+          label: "Province"
+        },
+        {
+          prop: "Class",
+          label: "Class"
+        },
+        {
+          prop: "Drillers Total Depth",
+          label: "Drillers Total Depth"
+        },
+        {
+          prop: "Well Type",
+          label: "Well Type"
+        },
+        {
+          prop: "Pad",
+          label: "Pad"
+        },
+        {
+          prop: "Top Longitude",
+          label: "Top Longitude"
+        },
+        {
+          prop: "Top Latitude",
+          label: "Top Latitude"
+        },
+        {
+          prop: "Bottom Longitude",
+          label: "Bottom Longitude"
+        },
+        {
+          prop: "Bottom Latitude",
+          label: "Bottom Latitude"
+        }
+      ],
+      tableOptions: [
+        {
+          value: "Injection",
+          label: "Injection"
+        },
+        {
+          value: "Production",
+          label: "Production"
+        },
+        {
+          value: "Statistics",
+          label: "Statistics"
+        },
+        {
+          value: "Wells",
+          label: "Wells"
+        }
+      ]
+    };
   },
   created() {
-    this.tableDialogVisible = true
-    const self = this
-    http.get('/getTableData',
-      {
-        params: {
-        }
-      }
-    )
-      .then(function(response) {
-        self.tableData = response.data
+    this.tableDialogVisible = true;
+    const self = this;
+    http
+      .get("/getWellsData", {
+        params: {}
       })
+      .then(function(response) {
+        self.tableData = response.data;
+      });
   },
   methods: {
     closeTab: function() {
-      this.tableDialogVisible = false
-      this.$router.replace({ path: '/home' })
+      this.tableDialogVisible = false;
+      this.$router.replace({ path: "/home" });
+    },
+    changeSelected: function() {
+      const self = this;
+      switch (this.table) {
+        case "Wells":
+          this.columns = [
+            {
+              prop: "UWI",
+              label: "UWI"
+            },
+            {
+              prop: "Well Name",
+              label: "Well Name"
+            },
+            {
+              prop: "Well Operator",
+              label: "Well Operator"
+            },
+            {
+              prop: "Well Status",
+              label: "Well Status"
+            },
+            {
+              prop: "Province",
+              label: "Province"
+            },
+            {
+              prop: "Class",
+              label: "Class"
+            },
+            {
+              prop: "Drillers Total Depth",
+              label: "Drillers Total Depth"
+            },
+            {
+              prop: "Well Type",
+              label: "Well Type"
+            },
+            {
+              prop: "Pad",
+              label: "Pad"
+            },
+            {
+              prop: "Top Longitude",
+              label: "Top Longitude"
+            },
+            {
+              prop: "Top Latitude",
+              label: "Top Latitude"
+            },
+            {
+              prop: "Bottom Longitude",
+              label: "Bottom Longitude"
+            },
+            {
+              prop: "Bottom Latitude",
+              label: "Bottom Latitude"
+            }
+          ];
+          http
+            .get("/getWellsData", {
+              params: {}
+            })
+            .then(function(response) {
+              self.tableData = response.data;
+            });
+          break;
+        case "Injection":
+          this.columns = [
+            {
+              prop: "Well Id",
+              label: "Well Id"
+            },
+            {
+              prop: "Month",
+              label: "Month"
+            },
+            {
+              prop: "Year",
+              label: "Year"
+            },
+            {
+              prop: "Production Type",
+              label: "Production Type"
+            },
+            {
+              prop: "Value",
+              label: "Value"
+            }
+          ];
+          http
+            .get("/getInjectionData", {
+              params: {}
+            })
+            .then(function(response) {
+              self.tableData = response.data;
+            });
+          break;
+        case "Production":
+          this.columns = [
+            {
+              prop: "Well Id",
+              label: "Well Id"
+            },
+            {
+              prop: "Month",
+              label: "Month"
+            },
+            {
+              prop: "Year",
+              label: "Year"
+            },
+            {
+              prop: "Cumulative Hours",
+              label: "Cumulative Hours"
+            },
+            {
+              prop: "Cumulative Gas",
+              label: "Cumulative Gas"
+            },
+            {
+              prop: "Cumulative Oil",
+              label: "Cumulative Oil"
+            },
+            {
+              prop: "Cumulative Water",
+              label: "Cumulative Water"
+            },
+            {
+              prop: "Hours",
+              label: "Hours"
+            },
+            {
+              prop: "Gas",
+              label: "Gas"
+            },
+            {
+              prop: "Gas Fluid Ratio",
+              label: "Gas Fluid Ratio"
+            },
+            {
+              prop: "Gas Oil Ratio",
+              label: "Gas Oil Ratio"
+            },
+            {
+              prop: "Oil",
+              label: "Oil"
+            },
+            {
+              prop: "Water",
+              label: "Water"
+            },
+            {
+              prop: "Water Cut",
+              label: "Water Cut"
+            },
+            {
+              prop: "Water Gas Ratio",
+              label: "Water Gas Ratio"
+            },
+            {
+              prop: "Water Oil Ratio",
+              label: "Water Oil Ratio"
+            },
+            {
+              prop: "Total Fluid",
+              label: "Total Fluid"
+            }
+          ];
+          http
+            .get("/getProductionData", {
+              params: {}
+            })
+            .then(function(response) {
+              self.tableData = response.data;
+            });
+          break;
+        case "Statistics":
+          this.columns = [
+            {
+              prop: "Injector Well Id",
+              label: "Injector Well Id"
+            },
+            {
+              prop: "Producer Well Id",
+              label: "Producer Well Id"
+            },
+            {
+              prop: "Min Injection Hour",
+              label: "Min Injection Hour"
+            },
+            {
+              prop: "Max Injection Hour",
+              label: "Max Injection Hour"
+            },
+            {
+              prop: "Average Injection Hour",
+              label: "Average Injection Hour"
+            },
+            {
+              prop: "Stddev Injection Hour",
+              label: "Stddev Injection Hour"
+            },
+            {
+              prop: "Min Injection Steam",
+              label: "Min Injection Steam"
+            },
+            {
+              prop: "Max Injection Steam",
+              label: "Max Injection Steam"
+            },
+            {
+              prop: "Average Injection Steam",
+              label: "Average Injection Steam"
+            },
+            {
+              prop: "Stddev Injection Steam",
+              label: "Stddev Injection Steam"
+            },
+            {
+              prop: "Min Production Oil",
+              label: "Min Production Oil"
+            },
+            {
+              prop: "Max Production Oil",
+              label: "Max Production Oil"
+            },
+            {
+              prop: "Average Production Oil",
+              label: "Average Production Oil"
+            },
+            {
+              prop: "Stddev Production Oil",
+              label: "Stddev Production Oil"
+            },
+            {
+              prop: "Min SOR",
+              label: "Min SOR"
+            },
+            {
+              prop: "Max SOR",
+              label: "Max SOR"
+            },
+            {
+              prop: "Average SOR",
+              label: "Average SOR"
+            },
+            {
+              prop: "Stddev SOR",
+              label: "Stddev SOR"
+            }
+          ];
+          http
+            .get("/getStatisticsData", {
+              params: {}
+            })
+            .then(function(response) {
+              self.tableData = response.data;
+            });
+          break;
+      }
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
-
 .home {
   &-container {
     width: 340px;
@@ -142,7 +421,7 @@ export default {
   }
 }
 
-.close-bar{
+.close-bar {
   width: 100%;
   height: 50px;
   text-align: center;
@@ -150,12 +429,12 @@ export default {
   border-bottom: 1px solid rgba(182, 182, 182, 0.838);
 }
 .sub-title {
-line-height: 50px;
-font-size: 20px;
+  line-height: 50px;
+  font-size: 20px;
 }
 
 .el-row {
-    margin:10px 30px;
+  margin: 10px 30px;
 }
 
 .collapse-icon {
@@ -166,9 +445,8 @@ font-size: 20px;
   height: 35px;
 }
 
-.main-content{
+.main-content {
   text-align: center;
   margin-top: 15px;
 }
-
 </style>

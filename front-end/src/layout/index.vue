@@ -81,7 +81,9 @@
           />
         </GmapMap>
       </section>
+      <!-- Map Legend -->
       <maplegend />
+      <!-- Classification Legend -->
       <transition name="fade" mode="in-out">
         <classificationlegend
           v-if="showLegend"
@@ -91,18 +93,8 @@
           @close="closeLegend($event)"
         />
       </transition>
-
-      <transition name="fade" mode="in-out">
-        <div class="association" v-if="showAssociation" >
-          <el-table :data="associationData" :header-cell-style="{'text-align':'center'}"  stripe border height="50vh"  style="width: 100%">
-            <el-table-column prop="Rule" label="Rule" width="60" />
-            <el-table-column prop="Expression" label="Expression" width="500" />
-            <el-table-column prop="Condifence" label="Condifence" width="100" />
-          </el-table>
-          <el-button style="margin-left: 600px;" type="primary" @click="closeAssociation">Close</el-button>
-        </div>
-      </transition>
     </div>
+
     <!-- Widget Panel -->
     <transition name="fade-transform" mode="out-in">
       <router-view
@@ -112,7 +104,6 @@
         @polygon="polygonOperation($event)"
         @classification="classification($event, ...arguments)"
         @clustering="clustering($event, ...arguments)"
-        @Association="Association($event)"
         @reset="init($event)"
       />
     </transition>
@@ -169,8 +160,7 @@ export default {
       catagoryTypeNum: null,
       showLegend: false,
       legendTitle: null,
-      showAssociation: false,
-      associationData: []
+      
     };
   },
   computed: {
@@ -221,9 +211,7 @@ export default {
         self.paths = response.data.path;
       });
     },
-    closeAssociation() {
-      this.showAssociation = false;
-    },
+
     handleClickOutside() {
       this.$store.dispatch("app/closeSideBar", { withoutAnimation: false });
     },
@@ -251,12 +239,6 @@ export default {
       this.bottomMarkers = params.bottomPoint;
       this.paths = params.path;
     },
-
-    Association: function(params) {
-      this.showAssociation = true;
-      this.association();
-    },
-
     polygonOperation(params) {
       switch (params) {
         case 1:
@@ -434,13 +416,5 @@ export default {
 .label-content {
   font-size: 15px;
 }
-.association {
-  position: absolute;
-  background-color: white;
-  bottom: 20px;
-  right: 10px;
-  padding: 14px 26px 14px 13px;
-  border-radius: 5px;
-  box-shadow: 3px 3px 5px #888888;
-}
+
 </style>

@@ -119,6 +119,33 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/annual-progress-report',
+    component: Layout,
+    name: 'AnnualProgressReport',
+    meta: { title: 'Annual Progress Report', icon: 'report' },
+    children: [
+      {
+        path: '2018',
+        name: '2018',
+        component: () => import('@/views/report/2018/index'),
+        meta: { title: '2018' }
+      },
+      {
+        path: '2017 ',
+        name: '2017',
+        component: () => import('@/views/report/2017/index'),
+        meta: { title: '2017' }
+      },
+      {
+        path: '2016 ',
+        name: '2016',
+        component: () => import('@/views/report/2016/index'),
+        meta: { title: '2016' }
+      }
+    ]
+  },
+
+  {
     path: '/table',
     component: Layout,
     children: [

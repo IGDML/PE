@@ -1,14 +1,15 @@
 <template>
-  <div class="page-container">
-
-    <div class="close-bar">
-      <span class="sub-title">Association Rule Mining</span>
-      <img class="collapse-icon" src="@/icons/collapse.png" alt="collapse" @click="closeTab">
-    </div>
-
-    <div class="main-content">
-      <el-button type="primary" plain style="width:200px;margin-top:20px;" @click="applyAssociationRule">Apply</el-button>
-    </div>
+  <div class="">
+      <transition name="fade" mode="in-out">
+        <div class="association" v-if="showAssociation" >
+          <el-table :data="associationData" :header-cell-style="{'text-align':'center'}"  stripe border height="50vh"  style="width: 100%">
+            <el-table-column prop="Rule" label="Rule" width="60" />
+            <el-table-column prop="Expression" label="Expression" width="500" />
+            <el-table-column prop="Condifence" label="Condifence" width="100" />
+          </el-table>
+          <el-button style="margin-left: 600px;" type="primary" @click="closeAssociation">Close</el-button>
+        </div>
+      </transition>
   </div>
 </template>
 
@@ -16,61 +17,65 @@
 export default {
   data() {
     return {
-
+      showAssociation: false,
+      associationData: []
     }
   },
+  created() {
+    this.Association()
+  },
   methods: {
-    closeTab: function() {
+    Association: function(params) {
+      this.showAssociation = true;
+      this.association();
+    },
+    closeAssociation() {
+      this.showAssociation = false;
       this.$router.replace({ path: '/home' })
     },
-
     applyAssociationRule: function() {
       this.$emit('Association')
+    },
+    association() {
+      this.associationData = [{
+        Rule: 'Rule1',
+        Expression: 'IF high average injection hour with low standard deviation low average injection steam with low standard deviation THEN good sor average with low sor standard deviation',
+        Condifence: '90% (18/20 pairs)'
+      },
+      {
+        Rule: 'Rule2',
+        Expression: 'IF low average injection hour with high standard deviation THEN low average oil production with low standard deviation',
+        Condifence: '86% (18/21 pairs)'
+      },
+      {
+        Rule: 'Rule3',
+        Expression: 'IF low average injection steam with low standard deviation  THEN low average oil production with low standard deviation',
+        Condifence: '85% (47/55 pairs)'
+      },
+      {
+        Rule: 'Rule4',
+        Expression: 'IF medium average injection hour with medium standard deviation high average injection steam with medium standard deviation THEN low average oil production with low standard deviation',
+        Condifence: '83% (19/23 pairs)'
+      },
+      {
+        Rule: 'Rule5',
+        Expression: 'IF low average and low standard deviation injection steam THEN good sor average with low sor standard deviation',
+        Condifence: '80% (24/30 pairs)'
+      }]
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.page {
-  &-container {
-    width: 340px;
-    position: absolute;
-    top: 0;
-    background-color: white;
-    z-index: 1;
-    height: 100vh;
-    box-shadow: 3px 3px 3px #888888;
-  }
-  &-text {
-    font-size: 50px;
-    line-height: 66px;
-  }
-}
-
-.close-bar{
-  width: 100%;
-  height: 50px;
-  text-align: center;
-  position: relative;
-  border-bottom: 1px solid rgba(182, 182, 182, 0.838);
-}
-.sub-title {
-line-height: 50px;
-font-size: 20px;
-}
-
-.collapse-icon {
+.association {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 35px;
-  height: 35px;
-}
-
-.main-content{
-  text-align: center;
-  margin-top: 15px;
+  background-color: white;
+  bottom: 20px;
+  right: 10px;
+  padding: 14px 26px 14px 13px;
+  border-radius: 5px;
+  box-shadow: 3px 3px 5px #888888;
 }
 
 </style>
