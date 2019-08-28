@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'server.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test',
+        'NAME': 'dbpetroleum',
         'USER': 'postgres',
         'PASSWORD': 'password',
         'HOST': '35.238.247.40',
