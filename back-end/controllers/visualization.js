@@ -19,54 +19,105 @@ module.exports = {
         queryAttr = 'st_avg_injection_steam'
         break
       case 'Well Drillers Total Depth':
+        queryAttr = 'w_drillers_total_depth'
         break
     }
 
-    db.Statistics.belongsTo(db.Wells, { foreignKey: 'st_injector_w_id' })
     var data = {
       categoryData: [],
       valueData: []
     }
-    var points = []
-    await db.Statistics.findAll({
-      include: [{
-        model: db.Wells,
-        required: true,
-        attributes: [['w_uwi', 'uwi'], ['w_operator', 'operator'], ['w_current_status', 'status']]
-      }],
-      attributes: [['st_injector_w_id', 'wid'], [queryAttr, 'value']]
-    }).then(statistic => {
-      statistic = JSON.stringify(statistic)
-      statistic = JSON.parse(statistic)
-      points = _.concat(points, statistic)
-    })
-    db.Statistics.belongsTo(db.Wells, { foreignKey: 'st_producer_w_id' })
-    await db.Statistics.findAll({
-      include: [{
-        model: db.Wells,
-        required: true,
-        attributes: [['w_uwi', 'uwi'], ['w_operator', 'operator'], ['w_current_status', 'status']]
-      }],
-      attributes: [['st_producer_w_id', 'wid'], [queryAttr, 'value']]
-    }).then(statistic => {
-      statistic = JSON.stringify(statistic)
-      statistic = JSON.parse(statistic)
-      points = _.concat(points, statistic)
-    })
-    points = _.sortBy(points, 'wid')
 
-    data.categoryData = _.map(points, (o) => {
-      return {
-        value: o.value,
-        uwi: o.well.uwi,
-        operator: o.well.operator,
-        status: o.well.status
-      }
-    })
-    data.valueData = _.map(points, (o) => {
-      return o.wid
-    })
-    ctx.response.body = data
+
+    if (queryAttr != 'w_drillers_total_depth') {
+      db.Statistics.belongsTo(db.Wells, {
+        foreignKey: 'st_injector_w_id'
+      })
+
+      var points = []
+      await db.Statistics.findAll({
+        include: [{
+          model: db.Wells,
+          required: true,
+          attributes: [
+            ['w_uwi', 'uwi'],
+            ['w_operator', 'operator'],
+            ['w_current_status', 'status']
+          ]
+        }],
+        attributes: [
+          ['st_injector_w_id', 'wid'],
+          [queryAttr, 'value']
+        ]
+      }).then(statistic => {
+        statistic = JSON.stringify(statistic)
+        statistic = JSON.parse(statistic)
+        points = _.concat(points, statistic)
+      })
+      db.Statistics.belongsTo(db.Wells, {
+        foreignKey: 'st_producer_w_id'
+      })
+      await db.Statistics.findAll({
+        include: [{
+          model: db.Wells,
+          required: true,
+          attributes: [
+            ['w_uwi', 'uwi'],
+            ['w_operator', 'operator'],
+            ['w_current_status', 'status']
+          ]
+        }],
+        attributes: [
+          ['st_producer_w_id', 'wid'],
+          [queryAttr, 'value']
+        ]
+      }).then(statistic => {
+        statistic = JSON.stringify(statistic)
+        statistic = JSON.parse(statistic)
+        points = _.concat(points, statistic)
+      })
+      points = _.sortBy(points, 'wid')
+
+      data.categoryData = _.map(points, (o) => {
+        return {
+          value: o.value,
+          uwi: o.well.uwi,
+          operator: o.well.operator,
+          status: o.well.status
+        }
+      })
+      data.valueData = _.map(points, (o) => {
+        return o.wid
+      })
+      ctx.response.body = data
+    } else {
+      await db.Wells.findAll({
+        attributes: [
+          ['w_id', 'wid'],
+          ['w_uwi', 'uwi'],
+          ['w_operator', 'operator'],
+          ['w_current_status', 'status'],
+          [queryAttr, 'value'],
+        ]
+      }).then(well => {
+        points = JSON.stringify(well)
+        points = JSON.parse(points)
+        points = _.sortBy(points, 'wid')
+      })
+
+      data.categoryData = _.map(points, (o) => {
+        return {
+          value: o.value,
+          uwi: o.uwi,
+          operator: o.operator,
+          status: o.status
+        }
+      })
+      data.valueData = _.map(points, (o) => {
+        return o.wid
+      })
+      ctx.response.body = data
+    }
   },
   async getPieChart(ctx) {
     const type = ctx.query.type
@@ -98,7 +149,9 @@ module.exports = {
     }
     var responseData
     await db.Wells.findAll({
-      attributes: [[queryAttr, 'attributeVal']]
+      attributes: [
+        [queryAttr, 'attributeVal']
+      ]
     }).then(statistic => {
       statistic = JSON.stringify(statistic)
       statistic = JSON.parse(statistic)

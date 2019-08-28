@@ -1,14 +1,12 @@
 <template>
   <div class="page-container">
-
     <div class="close-bar">
       <span class="sub-title">Data Visualization</span>
-      <img class="collapse-icon" src="@/icons/collapse.png" alt="collapse" @click="closeTab">
+      <img class="collapse-icon" src="@/icons/collapse.png" alt="collapse" @click="closeTab" />
     </div>
 
     <div class="main-content">
       <el-collapse v-model="activeCollapse" accordion>
-
         <!-- Bar Chart -->
         <el-collapse-item name="1">
           <template slot="title">
@@ -65,7 +63,11 @@
 
             <el-input v-model="uwi" placeholder="UWI" style="margin:10px 0;width:250px;" />
 
-            <el-select v-model="timeSeriesType" placeholder="choose data type" style="width:250px;margin:10px 0;">
+            <el-select
+              v-model="timeSeriesType"
+              placeholder="choose data type"
+              style="width:250px;margin:10px 0;"
+            >
               <el-option
                 v-for="item in timeSeriesTypeOptions"
                 :key="item.value"
@@ -74,12 +76,7 @@
               />
             </el-select>
           </div>
-          <el-button
-            type="primary"
-            plain
-            style="width:200px;"
-            @click="showTimeSeriesChart()"
-          >Apply</el-button>
+          <el-button type="primary" plain style="width:200px;" @click="showTimeSeriesChart()">Apply</el-button>
         </el-collapse-item>
       </el-collapse>
 
@@ -100,7 +97,7 @@
 
       <!-- Pie Chart dialog -->
       <el-dialog
-        title=""
+        title
         :visible.sync="pieChartDialogVisible"
         width="630px"
         :modal-append-to-body="false"
@@ -114,7 +111,7 @@
 
       <!-- Time Series dialog -->
       <el-dialog
-        title=""
+        title
         :visible.sync="timeSeriesDialogVisible"
         width="60%"
         :modal-append-to-body="false"
@@ -130,83 +127,83 @@
 </template>
 
 <script>
-import ECharts from 'vue-echarts'
-import http from '@/utils/http'
-var echarts = require('echarts')
+import ECharts from "vue-echarts";
+import http from "@/utils/http";
+var echarts = require("echarts");
 export default {
   components: {
-    'v-chart': ECharts
+    "v-chart": ECharts
   },
   data() {
     return {
-      activeCollapse: '1',
-      barChartType: '',
-      pieChartType: '',
-      timeSeriesType: '',
+      activeCollapse: "1",
+      barChartType: "",
+      pieChartType: "",
+      timeSeriesType: "",
       barChartOptions: [
         {
-          value: 'Average Injection Hours',
-          label: 'Average Injection Hours'
+          value: "Average Injection Hours",
+          label: "Average Injection Hours"
         },
         {
-          value: 'Average Oil Production',
-          label: 'Average Oil Production'
+          value: "Average Oil Production",
+          label: "Average Oil Production"
         },
         {
-          value: 'Average SOR',
-          label: 'Average SOR'
+          value: "Average SOR",
+          label: "Average SOR"
         },
         {
-          value: 'Average Steam Injection',
-          label: 'Average Steam Injection'
+          value: "Average Steam Injection",
+          label: "Average Steam Injection"
         },
         {
-          value: 'Well Drillers Total Depth',
-          label: 'Well Drillers Total Depth'
+          value: "Well Drillers Total Depth",
+          label: "Well Drillers Total Depth"
         }
       ],
       pieChartOptions: [
         {
-          value: 'Well Class',
-          label: 'Well Class'
+          value: "Well Class",
+          label: "Well Class"
         },
         {
-          value: 'Well Current Status',
-          label: 'Well Current Status'
+          value: "Well Current Status",
+          label: "Well Current Status"
         },
         {
-          value: 'Well Operator',
-          label: 'Well Operator'
+          value: "Well Operator",
+          label: "Well Operator"
         },
         {
-          value: 'Well Province',
-          label: 'Well Province'
+          value: "Well Province",
+          label: "Well Province"
         },
         {
-          value: 'Well Type',
-          label: 'Well Type'
+          value: "Well Type",
+          label: "Well Type"
         },
         {
-          value: 'Pad',
-          label: 'Pad'
+          value: "Pad",
+          label: "Pad"
         }
       ],
       timeSeriesTypeOptions: [
         {
-          value: 'Injection',
-          label: 'Injection'
+          value: "Injection",
+          label: "Injection"
         },
         {
-          value: 'Production',
-          label: 'Production'
+          value: "Production",
+          label: "Production"
         },
         {
-          value: 'SOR',
-          label: 'SOR'
+          value: "SOR",
+          label: "SOR"
         },
         {
-          value: 'Well Status',
-          label: 'Well Status'
+          value: "Well Status",
+          label: "Well Status"
         }
       ],
       barChartDialogVisible: false,
@@ -224,122 +221,187 @@ export default {
       timeSeriesData: {
         label: []
       }
-
-    }
+    };
   },
   computed: {
     uwi: {
       get() {
-        return this.$store.state.map.uwi
+        return this.$store.state.map.uwi;
       },
       set(value) {
-        this.$store.dispatch('map/changeUWI', value)
+        this.$store.dispatch("map/changeUWI", value);
       }
     },
     timeSeriesLegend() {
-      var temp
-      if (this.timeSeriesType === 'Injection') {
-        temp = ['Hours', 'Steam']
-      } else if (this.timeSeriesType === 'Production') {
-        temp = ['Cumulative Gas', 'Cumulative Hours', 'Cumulative Oil Bitumen', 'Cumulative Water', 'Gas', 'Gas Fluid Ratio', 'Gas Oil Ratio', 'Hours', 'Oil', 'Oil Cut', 'Total Fluid', 'Water', 'Water Cut', 'Water Gas Ratio', 'Water Oil Ratio']
-      } else if (this.timeSeriesType === 'Injection') {
-        temp = ['Hours', 'Steam']
+      var temp;
+      if (this.timeSeriesType === "Injection") {
+        temp = ["Hours", "Steam(m³)"];
+      } else if (this.timeSeriesType === "Production") {
+        temp = [
+          "Cumulative Gas(m³)",
+          "Cumulative Hours",
+          "Cumulative Oil Bitumen(m³)",
+          "Cumulative Water(m³)",
+          "Gas(m³)",
+          "Gas Fluid Ratio",
+          "Gas Oil Ratio",
+          "Hours",
+          "Oil(m³)",
+          "Oil Cut(%)",
+          "Total Fluid(m³)",
+          "Water(m³)",
+          "Water Cut(%)",
+          "Water Gas Ratio",
+          "Water Oil Ratio"
+        ];
+      } else if (this.timeSeriesType === "Injection") {
+        temp = ["Hours", "Steam"];
       }
-      return temp
+      return temp;
     },
     labelArr() {
-      var temp
-      if (this.timeSeriesType === 'Injection') {
-        temp = ['hourData', 'streamData']
-      } else if (this.timeSeriesType === 'Production') {
-        temp = ['cumulativeGas', 'cumulativeHours', 'cumulativeOilBitumen', 'cumulativeWater', 'gas', 'gasFluidRatio', 'gasOilRatio', 'hours', 'oil', 'oilCut', 'totalFluid', 'water', 'waterCut', 'waterGasRatio', 'waterOilRatio']
-      } else if (this.timeSeriesType === 'Injection') {
-        temp = ['Hours', 'Steam']
+      var temp;
+      if (this.timeSeriesType === "Injection") {
+        temp = ["hourData", "streamData"];
+      } else if (this.timeSeriesType === "Production") {
+        temp = [
+          "cumulativeGas",
+          "cumulativeHours",
+          "cumulativeOilBitumen",
+          "cumulativeWater",
+          "gas",
+          "gasFluidRatio",
+          "gasOilRatio",
+          "hours",
+          "oil",
+          "oilCut",
+          "totalFluid",
+          "water",
+          "waterCut",
+          "waterGasRatio",
+          "waterOilRatio"
+        ];
+      } else if (this.timeSeriesType === "Injection") {
+        temp = ["Hours", "Steam"];
       }
-      return temp
+      return temp;
+    },
+    yaxis() {
+      var yaxis;
+      switch (this.barChartType) {
+        case "Average Injection Hours":
+          yaxis = "h";
+          break;
+        case "Average Oil Production":
+          yaxis = "m³";
+          break;
+        case "Average SOR":
+          yaxis = "";
+          break;
+        case "Average Steam Injection":
+          yaxis = "m³";
+          break;
+        case "Well Drillers Total Depth":
+          yaxis = "m";
+          break;
+      }
+      return yaxis;
     },
     series() {
-      var arr = []
+      var arr = [];
       for (let i = 0; i < this.labelArr.length; i++) {
-        var dataType = this.labelArr[i]
-        var timeSeriesData = this.timeSeriesData
+        var dataType = this.labelArr[i];
+        var timeSeriesData = this.timeSeriesData;
         var temp = {
           name: this.timeSeriesLegend[i],
-          type: 'line',
+          type: "line",
           data: timeSeriesData[dataType]
-        }
-        arr[i] = temp
+        };
+        arr[i] = temp;
       }
-      return arr
+      return arr;
     },
     isProductionTimeSeries() {
-      if (this.timeSeriesType === 'Production') {
-        return true
-      } else return false
+      if (this.timeSeriesType === "Production") {
+        return true;
+      } else return false;
     }
   },
   methods: {
     closeTab: function() {
-      this.$store.dispatch('map/changeUWI', '')
-      this.$router.replace({ path: '/home' })
+      this.$store.dispatch("map/changeUWI", "");
+      this.$router.replace({ path: "/home" });
     },
     updateUWI: function(e) {
-      this.$store.dispatch('map/changeUWI', e.target.value)
+      this.$store.dispatch("map/changeUWI", e.target.value);
     },
     showBarChart: function() {
-      var self = this
-      http.get('/getBarChart',
-        {
+      var self = this;
+      http
+        .get("/getBarChart", {
           params: {
             type: self.barChartType
           }
         })
         .then(function(response) {
-          self.barXvalue = response.data.valueData
-          self.barYvalue = response.data.categoryData
-          self.barChartDialogVisible = true
+          self.barXvalue = response.data.valueData;
+          self.barYvalue = response.data.categoryData;
+          self.barChartDialogVisible = true;
           self.barOption = {
             title: {
               text: self.barChartType,
               left: 10
             },
             toolbox: {
-              right: '6%',
+              right: "6%",
               feature: {
                 saveAsImage: {
                   pixelRatio: 2,
-                  title: 'Save'
+                  title: "Save"
                 }
               }
             },
             tooltip: {
-              trigger: 'axis',
+              trigger: "axis",
               axisPointer: {
-                type: 'shadow'
+                type: "shadow"
               },
               formatter: function(params) {
-                var res = '<b>' + self.barChartType + '</b>' +
-                 '<div>' + params[0].value + '</div>' +
-                 '<div style="text-align:left">UWI</div>' +
-                 '<div style="text-align:left;margin-left:15px;">' + params[0].data.uwi + '</div>' +
-                 '<div style="text-align:left">Well Operator</div>' +
-                 '<div style="text-align:left;margin-left:15px;">' + params[0].data.operator + '</div>' +
-                 '<div style="text-align:left">Well Status</div>' +
-                 '<div style="text-align:left;margin-left:15px;">' + params[0].data.status
-                return res
+                var res =
+                  "<b>" +
+                  self.barChartType +
+                  "</b>" +
+                  "<div>" +
+                  params[0].value +
+                  "</div>" +
+                  '<div style="text-align:left">UWI</div>' +
+                  '<div style="text-align:left;margin-left:15px;">' +
+                  params[0].data.uwi +
+                  "</div>" +
+                  '<div style="text-align:left">Well Operator</div>' +
+                  '<div style="text-align:left;margin-left:15px;">' +
+                  params[0].data.operator +
+                  "</div>" +
+                  '<div style="text-align:left">Well Status</div>' +
+                  '<div style="text-align:left;margin-left:15px;">' +
+                  params[0].data.status;
+                return res;
               }
             },
             grid: {
               bottom: 90
             },
-            dataZoom: [{
-              type: 'inside'
-            }, {
-              type: 'slider'
-            }],
+            dataZoom: [
+              {
+                type: "inside"
+              },
+              {
+                type: "slider"
+              }
+            ],
             xAxis: {
-              name: 'wid',
-              type: 'category',
+              name: "wid",
+              type: "category",
               silent: false,
               splitLine: {
                 show: false
@@ -350,138 +412,142 @@ export default {
               data: self.barXvalue
             },
             yAxis: {
-              type: 'value',
+              name: self.yaxis,
+              type: "value",
               splitArea: {
                 show: false
               }
             },
-            series: [{
-              data: self.barYvalue,
-              type: 'bar',
-              large: true
-            }]
-          }
-        })
+            series: [
+              {
+                data: self.barYvalue,
+                type: "bar",
+                large: true
+              }
+            ]
+          };
+        });
     },
     showPieChart: function() {
-      var self = this
-      http.get('/getPieChart',
-        {
+      var self = this;
+      http
+        .get("/getPieChart", {
           params: {
             type: self.pieChartType
           }
-        }
-      )
+        })
         .then(function(response) {
-          self.pieData.value = response.data.value
-          self.pieData.label = response.data.label
-          self.pieChartDialogVisible = true
+          self.pieData.value = response.data.value;
+          self.pieData.label = response.data.label;
+          self.pieChartDialogVisible = true;
           self.pieOption = {
             title: {
-              text: 'Pie Chart',
+              text: "Pie Chart",
               subtext: self.pieChartType,
-              x: 'center'
+              x: "center"
             },
             toolbox: {
-              right: '6%',
+              right: "6%",
               feature: {
                 saveAsImage: {
                   pixelRatio: 2,
-                  title: 'Save'
+                  title: "Save"
                 }
               }
             },
             grid: {
-              left: '90'
+              left: "90"
             },
             tooltip: {
-              trigger: 'item',
-              formatter: '{a} <br/>{b} : {c} ({d}%)'
+              trigger: "item",
+              formatter: "{a} <br/>{b} : {c} ({d}%)"
             },
             legend: {
-              orient: 'vertical',
+              orient: "vertical",
               left: 0,
               data: self.pieData.label
             },
             series: [
               {
-                name: 'Well Class',
-                type: 'pie',
-                radius: '75%',
-                center: ['50%', '60%'],
+                name: "Well Class",
+                type: "pie",
+                radius: "75%",
+                center: ["50%", "60%"],
                 data: self.pieData.value,
                 itemStyle: {
                   emphasis: {
                     shadowBlur: 10,
                     shadowOffsetX: 0,
-                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    shadowColor: "rgba(0, 0, 0, 0.5)"
                   }
                 }
               }
             ]
-          }
-        })
+          };
+        });
     },
     showTimeSeriesChart: function() {
-      const self = this
-      http.get('/getTimeSeries',
-        {
+      const self = this;
+      http
+        .get("/getTimeSeries", {
           params: {
             uwi: self.uwi,
             type: self.timeSeriesType
           }
-        }
-      )
+        })
         .then(function(response) {
-          self.timeSeriesData = response.data
-          self.timeSeriesDialogVisible = true
+          self.timeSeriesData = response.data;
+          self.timeSeriesDialogVisible = true;
           self.timeSeriesOption = {
             title: {
-              text: 'Time Series',
+              text: "Time Series",
               subtext: self.timeSeriesType
             },
             tooltip: {
-              trigger: 'axis'
+              trigger: "axis"
             },
             legend: {
               data: self.timeSeriesLegend,
-              orient: 'vertical',
-              right: 'right',
+              orient: "vertical",
+              right: "right",
               top: 50
             },
             grid: {
-              left: '3%',
-              right: self.isProductionTimeSeries ? '25%' : '13%',
-              bottom: '12%',
+              left: "3%",
+              right: self.isProductionTimeSeries ? "25%" : "13%",
+              bottom: "12%",
               containLabel: true
             },
-            dataZoom: [{
-              type: 'inside'
-            }, {
-              type: 'slider'
-            }],
+            dataZoom: [
+              {
+                type: "inside"
+              },
+              {
+                type: "slider"
+              }
+            ],
             toolbox: {
-              right: self.isProductionTimeSeries ? '17%' : '6%',
+              right: self.isProductionTimeSeries ? "17%" : "6%",
               feature: {
                 saveAsImage: {
-                  title: 'Save'
+                  title: "Save"
                 }
               }
             },
             xAxis: {
-              type: 'category',
+              type: "category",
               boundaryGap: false,
               data: self.timeSeriesData.label
             },
             yAxis: {
-              type: 'value'
+              type: "value"
             },
             series: self.series
-          }
-        })
+          };
+        });
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -501,7 +567,7 @@ export default {
   }
 }
 
-.close-bar{
+.close-bar {
   width: 100%;
   height: 50px;
   text-align: center;
@@ -509,8 +575,8 @@ export default {
   border-bottom: 1px solid rgba(182, 182, 182, 0.838);
 }
 .sub-title {
-line-height: 50px;
-font-size: 20px;
+  line-height: 50px;
+  font-size: 20px;
 }
 
 .collapse-icon {
@@ -521,20 +587,19 @@ font-size: 20px;
   height: 35px;
 }
 
-.main-content{
+.main-content {
   text-align: center;
 }
 
 .item-title {
-    margin-left: 15px;
-    font-size: 16px;
+  margin-left: 15px;
+  font-size: 16px;
 }
 
 .expansion-content {
-    height: 100%;
-    width: 100%;
-    text-align: center;
-    // margin-top: 10px;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  // margin-top: 10px;
 }
-
 </style>

@@ -8,9 +8,8 @@ from . import models
 
 
 def kmeans(request):
-    cluster = request.GET.get('cluster', '10')
-    print(cluster)
-    data = models.Users.objects.all()
+    cluster = request.GET.get('cluster', '10') # get the parameter from the request 
+    data = models.Wells.objects.all()
     json_res = serializers.serialize('python', data)
     response = {
         'test': json_res

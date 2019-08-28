@@ -1,9 +1,8 @@
 <template>
   <div class="page-container">
-
     <div class="close-bar">
       <span class="sub-title">Clustering</span>
-      <img class="collapse-icon" src="@/icons/collapse.png" alt="collapse" @click="closeTab">
+      <img class="collapse-icon" src="@/icons/collapse.png" alt="collapse" @click="closeTab" />
     </div>
 
     <div class="main-content">
@@ -30,7 +29,8 @@
                 <el-col :span="12">
                   <el-checkbox label="Oil Production" />
                 </el-col>
-              </el-row><el-row>
+              </el-row>
+              <el-row>
                 <el-col :span="12">
                   <el-checkbox label="SOR" />
                 </el-col>
@@ -61,73 +61,211 @@
           <template slot="title">
             <span class="item-title">Hierarchical</span>
           </template>
-          <div class="expansion-content" style>
-          </div>
+          <div class="expansion-content" style></div>
           <el-button
             type="primary"
             plain
             style="width:200px;margin-top:15px;"
-            @click="applyClustering()"
+            @click="applyHieClustering()"
           >Run</el-button>
         </el-collapse-item>
       </el-collapse>
+
+      <el-dialog
+        title="Hierarchical Clustering"
+        :visible.sync="clusterDialogVisible"
+        width="55%"
+        :before-close="closeDialog"
+        :modal-append-to-body="false"
+        top="2vh"
+      >
+        <v-chart :options="clusterOption" style="width:100%;" />
+        <el-button type="primary" @click="closeDialog">Close</el-button>
+      </el-dialog>
     </div>
   </div>
 </template>
 
+
 <script>
+import ECharts from "vue-echarts";
+import http from "@/utils/http";
+var echarts = require("echarts");
 export default {
+  components: {
+    "v-chart": ECharts
+  },
   data() {
     return {
-      activeCollapse: '',
+      activeCollapse: "",
       checkList: [],
+      clusterData: {
+        name: "flare",
+        children: [
+          {
+            name: "analytics",
+            children: [
+              {
+                name: "cluster",
+                children: [
+                  { name: "AgglomerativeCluster", value: 3938 },
+                  { name: "CommunityStructure", value: 3812 },
+                  { name: "HierarchicalCluster", value: 6714 },
+                  { name: "MergeEdge", value: 743 }
+                ]
+              },
+              {
+                name: "graph",
+                children: [
+                  { name: "BetweennessCentrality", value: 3534 },
+                  { name: "LinkDistance", value: 5731 },
+                  { name: "MaxFlowMinCut", value: 7840 },
+                  { name: "ShortestPaths", value: 5914 },
+                  { name: "SpanningTree", value: 3416 }
+                ]
+              },
+              {
+                name: "optimization",
+                children: [{ name: "AspectRatioBanker", value: 7074 }]
+              }
+            ]
+          },
+          {
+            name: "animate",
+            children: [
+              { name: "Easing", value: 17010 },
+              { name: "FunctionSequence", value: 5842 },
+              {
+                name: "interpolate",
+                children: [
+                  { name: "ArrayInterpolator", value: 1983 },
+                  { name: "ColorInterpolator", value: 2047 },
+                  { name: "DateInterpolator", value: 1375 },
+                  { name: "Interpolator", value: 8746 },
+                  { name: "MatrixInterpolator", value: 2202 },
+                  { name: "NumberInterpolator", value: 1382 },
+                  { name: "ObjectInterpolator", value: 1629 },
+                  { name: "PointInterpolator", value: 1675 },
+                  { name: "RectangleInterpolator", value: 2042 }
+                ]
+              },
+              { name: "ISchedulable", value: 1041 },
+              { name: "Parallel", value: 5176 },
+              { name: "Pause", value: 449 },
+              { name: "Scheduler", value: 5593 },
+              { name: "Sequence", value: 5534 },
+              { name: "Transition", value: 9201 },
+              { name: "Transitioner", value: 19975 },
+              { name: "TransitionEvent", value: 1116 },
+              { name: "Tween", value: 6006 }
+            ]
+          }
+        ]
+      },
+      loading: true,
+      clusterOption: {},
+      clusterDialogVisible: false,
       clusterNumOption: [
         {
-          value: '2',
-          label: '2'
+          value: "2",
+          label: "2"
         },
         {
-          value: '3',
-          label: '3'
+          value: "3",
+          label: "3"
         },
         {
-          value: '4',
-          label: '4'
+          value: "4",
+          label: "4"
         },
         {
-          value: '5',
-          label: '5'
+          value: "5",
+          label: "5"
         },
         {
-          value: '6',
-          label: '6'
+          value: "6",
+          label: "6"
         },
         {
-          value: '7',
-          label: '7'
+          value: "7",
+          label: "7"
         },
         {
-          value: '8',
-          label: '8'
+          value: "8",
+          label: "8"
         },
         {
-          value: '9',
-          label: '9'
+          value: "9",
+          label: "9"
         }
       ],
-      clusterNum: ''
-    }
+      clusterNum: ""
+    };
   },
   methods: {
     closeTab: function() {
-      this.$emit('reset')
-      this.$router.replace({ path: '/home' })
+      this.$emit("reset");
+      this.$router.replace({ path: "/home" });
+    },
+    closeDialog: function() {
+      this.clusterDialogVisible = false;
+    },
+    applyHieClustering: function() {
+      this.clusterDialogVisible = true;
+
+      this.clusterOption = {
+        tooltip: {
+          trigger: "item",
+          triggerOn: "mousemove"
+        },
+        series: [
+          {
+            type: "tree",
+
+            data: [this.clusterData],
+
+            left: "2%",
+            right: "2%",
+            top: "8%",
+            bottom: "20%",
+
+            symbol: "emptyCircle",
+
+            orient: "vertical",
+
+            expandAndCollapse: true,
+
+            label: {
+              normal: {
+                position: "top",
+                rotate: -90,
+                verticalAlign: "middle",
+                align: "right",
+                fontSize: 9
+              }
+            },
+
+            leaves: {
+              label: {
+                normal: {
+                  position: "bottom",
+                  rotate: -90,
+                  verticalAlign: "middle",
+                  align: "left"
+                }
+              }
+            },
+
+            animationDurationUpdate: 750
+          }
+        ]
+      };
     },
     applyClustering: function() {
-      this.$emit('clustering', this.checkList, this.clusterNum)
+      this.$emit("clustering", this.checkList, this.clusterNum);
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -147,7 +285,7 @@ export default {
   }
 }
 
-.close-bar{
+.close-bar {
   width: 100%;
   height: 50px;
   text-align: center;
@@ -155,8 +293,8 @@ export default {
   border-bottom: 1px solid rgba(182, 182, 182, 0.838);
 }
 .sub-title {
-line-height: 50px;
-font-size: 20px;
+  line-height: 50px;
+  font-size: 20px;
 }
 
 .collapse-icon {
@@ -167,26 +305,25 @@ font-size: 20px;
   height: 35px;
 }
 
-.main-content{
+.main-content {
   text-align: center;
 }
 .el-row {
-    width: 340px;
+  width: 340px;
 }
 .item-title {
-    margin-left: 15px;
-    font-size: 16px;
+  margin-left: 15px;
+  font-size: 16px;
 }
 
 .expansion-content {
-    height: 100%;
-    width: 100%;
-    text-align: center;
-    // margin-top: 10px;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  // margin-top: 10px;
 }
 .el-col {
   text-align: left;
   padding-left: 20px;
 }
-
 </style>

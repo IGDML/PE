@@ -76,7 +76,7 @@ export default {
         },
         {
           prop: "Drillers Total Depth",
-          label: "Drillers Total Depth"
+          label: "Drillers Total Depth(m)"
         },
         {
           prop: "Well Type",
@@ -170,7 +170,7 @@ export default {
             },
             {
               prop: "Drillers Total Depth",
-              label: "Drillers Total Depth"
+              label: "Drillers Total Depth(m)"
             },
             {
               prop: "Well Type",
@@ -256,15 +256,15 @@ export default {
             },
             {
               prop: "Cumulative Gas",
-              label: "Cumulative Gas"
+              label: "Cumulative Gas(m³)"
             },
             {
               prop: "Cumulative Oil",
-              label: "Cumulative Oil"
+              label: "Cumulative Oil(m³)"
             },
             {
               prop: "Cumulative Water",
-              label: "Cumulative Water"
+              label: "Cumulative Water(m³)"
             },
             {
               prop: "Hours",
@@ -272,7 +272,7 @@ export default {
             },
             {
               prop: "Gas",
-              label: "Gas"
+              label: "Gas(m³)"
             },
             {
               prop: "Gas Fluid Ratio",
@@ -284,15 +284,15 @@ export default {
             },
             {
               prop: "Oil",
-              label: "Oil"
+              label: "Oil(m³)"
             },
             {
               prop: "Water",
-              label: "Water"
+              label: "Water(m³)"
             },
             {
               prop: "Water Cut",
-              label: "Water Cut"
+              label: "Water Cut(%)"
             },
             {
               prop: "Water Gas Ratio",
@@ -304,7 +304,7 @@ export default {
             },
             {
               prop: "Total Fluid",
-              label: "Total Fluid"
+              label: "Total Fluid(m³)"
             }
           ];
           http
@@ -343,35 +343,35 @@ export default {
             },
             {
               prop: "Min Injection Steam",
-              label: "Min Injection Steam"
+              label: "Min Injection Steam(m³)"
             },
             {
               prop: "Max Injection Steam",
-              label: "Max Injection Steam"
+              label: "Max Injection Steam(m³)"
             },
             {
               prop: "Average Injection Steam",
-              label: "Average Injection Steam"
+              label: "Average Injection Steam(m³)"
             },
             {
               prop: "Stddev Injection Steam",
-              label: "Stddev Injection Steam"
+              label: "Stddev Injection Steam(m³)"
             },
             {
               prop: "Min Production Oil",
-              label: "Min Production Oil"
+              label: "Min Production Oil(m³)"
             },
             {
               prop: "Max Production Oil",
-              label: "Max Production Oil"
+              label: "Max Production Oil(m³)"
             },
             {
               prop: "Average Production Oil",
-              label: "Average Production Oil"
+              label: "Average Production Oil(m³)"
             },
             {
               prop: "Stddev Production Oil",
-              label: "Stddev Production Oil"
+              label: "Stddev Production Oil(m³)"
             },
             {
               prop: "Min SOR",

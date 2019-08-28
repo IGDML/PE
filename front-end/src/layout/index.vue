@@ -64,6 +64,7 @@
               @click="toggleInfo(mb, mb.index)"
             />
           </div>
+
           <!-- polyline -->
           <gmap-polyline
             v-for="l in paths"
@@ -112,10 +113,9 @@
 
 <script>
 import { Navbar, Sidebar, Maplegend, Classificationlegend } from "./components";
-import ResizeMixin from "./mixin/ResizeHandler";
+import ResizeMixin from "./mixin/resizeHandler";
 import polygonMixin from "./mixin/polygonFunction";
 import classifyMixin from "./mixin/classifyFunction";
-import associationMixin from "./mixin/association";
 
 import http from "@/utils/http";
 var qs = require("qs");
@@ -128,7 +128,7 @@ export default {
     Maplegend,
     Classificationlegend
   },
-  mixins: [ResizeMixin, polygonMixin, classifyMixin, associationMixin],
+  mixins: [ResizeMixin, polygonMixin, classifyMixin],
   data() {
     return {
       topMarkers: [],
