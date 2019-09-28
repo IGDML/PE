@@ -259,6 +259,7 @@
             <el-checkbox label="WOR" />
           </el-checkbox-group>
           <el-button type="primary" @click="showTable">Table</el-button>
+          <el-button @click="changeOption()">{{ changeSelection }}</el-button>
           <el-button type="primary" @click="closeDataDialog">Select</el-button>
         </span>
       </el-dialog>
@@ -277,6 +278,7 @@ export default {
   data() {
     return {
       enableLSTM: false,
+      changeSelection: "Unselect All",
       haveSelected: false,
       checkList: [],
       neuralNetworkDialogVisible: false,
@@ -549,8 +551,7 @@ export default {
     closeDialog: function() {
       this.neuralNetworkDialogVisible = false;
       this.neuralNetworkOption = {};
-      this.neuralNetworkData = {
-      };
+      this.neuralNetworkData = {};
       this.loading = true;
     },
     closeDataDialog: function() {
@@ -568,7 +569,7 @@ export default {
       const self = this;
       self.neuralNetworkDialogVisible = true;
 
-      if ((self.enableLSTM==false)) {
+      if (self.enableLSTM == false) {
         http
           .get("/runANN", {
             params: {
@@ -716,6 +717,87 @@ export default {
     },
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    changeOption() {
+      if (this.changeSelection == "Unselect All") {
+        this.inputDataOption.legend = {
+          data: [
+            "101STM",
+            "102STM",
+            "103STM",
+            "104STM",
+            "105STM",
+            "106STM",
+            "107STM",
+            "108STM",
+            "109STM",
+            "110STM",
+            "115STM",
+            "116STM",
+            "117STM",
+            "WOR"
+          ],
+          orient: "vertical",
+          right: "right",
+          top: 50,
+          selected: {
+            "101STM": false,
+            "102STM": false,
+            "103STM": false,
+            "104STM": false,
+            "105STM": false,
+            "106STM": false,
+            "107STM": false,
+            "108STM": false,
+            "109STM": false,
+            "110STM": false,
+            "115STM": false,
+            "116STM": false,
+            "117STM": false,
+            WOR: false
+          }
+        };
+        this.changeSelection = "Select All";
+      } else {
+        this.inputDataOption.legend = {
+          data: [
+            "101STM",
+            "102STM",
+            "103STM",
+            "104STM",
+            "105STM",
+            "106STM",
+            "107STM",
+            "108STM",
+            "109STM",
+            "110STM",
+            "115STM",
+            "116STM",
+            "117STM",
+            "WOR"
+          ],
+          orient: "vertical",
+          right: "right",
+          top: 50,
+          selected: {
+            "101STM": true,
+            "102STM": true,
+            "103STM": true,
+            "104STM": true,
+            "105STM": true,
+            "106STM": true,
+            "107STM": true,
+            "108STM": true,
+            "109STM": true,
+            "110STM": true,
+            "115STM": true,
+            "116STM": true,
+            "117STM": true,
+            WOR: true
+          }
+        };
+        this.changeSelection = "Unselect All";
+      }
     },
     showDataDialog() {
       const self = this;

@@ -57,6 +57,7 @@ module.exports = {
       db.Statistics.belongsTo(db.Wells, {
         foreignKey: 'st_producer_w_id'
       })
+
       await db.Statistics.findAll({
         include: [{
           model: db.Wells,
@@ -90,6 +91,9 @@ module.exports = {
         return o.wid
       })
       ctx.response.body = data
+
+
+      //else queryAttr == 'w_drillers_total_depth'
     } else {
       await db.Wells.findAll({
         attributes: [

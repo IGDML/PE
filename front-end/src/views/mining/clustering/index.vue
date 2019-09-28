@@ -13,7 +13,7 @@
             <span class="item-title">K-means</span>
           </template>
           <div class="expansion-content" style>
-            <el-checkbox-group v-model="checkList">
+            <el-checkbox-group v-model="checkListKmeans">
               <el-row>
                 <el-col :span="12">
                   <el-checkbox label="Drillers Depth" />
@@ -61,26 +61,99 @@
           <template slot="title">
             <span class="item-title">Hierarchical</span>
           </template>
-          <div class="expansion-content" style></div>
+
+          <div class="expansion-content" style>
+            <el-checkbox-group v-model="checkListHclust">
+              <el-row>
+                <el-col :span="15">
+                  <el-checkbox label="Total Production Months" />
+                </el-col>
+                <el-col :span="15">
+                  <el-checkbox label="Percentage Of months After Peak Production" />
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="15">
+                  <el-checkbox label="Peak Production Rate" />
+                </el-col>
+                <el-col :span="15">
+                  <el-checkbox label="Nominal Decline Rate" />
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="15">
+                  <el-checkbox label="Arps Decline Curve Exponent" />
+                </el-col>
+              </el-row>
+            </el-checkbox-group>
+          </div>
+          <el-divider />
+
+          <div class="input-row">
+            <div class="input-label">Attribute</div>
+            <div style="display: inline-block;">
+              <el-select v-model="clusterAttribute" placeholder="Select" style="width:140px;">
+                <el-option
+                  v-for="item in attributeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-label">Distance</div>
+            <div style="display: inline-block;">
+              <el-select v-model="clusterDistance" placeholder="Select" style="width:140px;">
+                <el-option
+                  v-for="item in distanceOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-label">Linkage</div>
+            <div style="display: inline-block;">
+              <el-select v-model="clusterLinkage" placeholder="Select" style="width:140px;">
+                <el-option
+                  v-for="item in linkageOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+          </div>
+
           <el-button
             type="primary"
             plain
             style="width:200px;margin-top:15px;"
             @click="applyHieClustering()"
-          >Run</el-button>
+          >Apply</el-button>
         </el-collapse-item>
       </el-collapse>
 
       <el-dialog
         title="Hierarchical Clustering"
         :visible.sync="clusterDialogVisible"
-        width="55%"
+        width="1000px"
         :before-close="closeDialog"
         :modal-append-to-body="false"
         top="2vh"
       >
-        <v-chart :options="clusterOption" style="width:100%;" />
-        <el-button type="primary" @click="closeDialog">Close</el-button>
+        <div style="height: 650px;">
+          <v-chart ref="cluster" :options="clusterOption" class="cluster" @click="chartEvent" />
+          <v-chart ref="timeSeries" :options="timeSeriesOption" class="time-series" />
+          <el-button type="primary" class="ref-button" @click="refresh">Refresh</el-button>
+          <el-button type="primary" class="clo-button" @click="closeDialog">Close</el-button>
+        </div>
       </el-dialog>
     </div>
   </div>
@@ -98,72 +171,56 @@ export default {
   data() {
     return {
       activeCollapse: "",
-      checkList: [],
-      clusterData: {
-        name: "flare",
-        children: [
-          {
-            name: "analytics",
-            children: [
-              {
-                name: "cluster",
-                children: [
-                  { name: "AgglomerativeCluster", value: 3938 },
-                  { name: "CommunityStructure", value: 3812 },
-                  { name: "HierarchicalCluster", value: 6714 },
-                  { name: "MergeEdge", value: 743 }
-                ]
-              },
-              {
-                name: "graph",
-                children: [
-                  { name: "BetweennessCentrality", value: 3534 },
-                  { name: "LinkDistance", value: 5731 },
-                  { name: "MaxFlowMinCut", value: 7840 },
-                  { name: "ShortestPaths", value: 5914 },
-                  { name: "SpanningTree", value: 3416 }
-                ]
-              },
-              {
-                name: "optimization",
-                children: [{ name: "AspectRatioBanker", value: 7074 }]
-              }
-            ]
-          },
-          {
-            name: "animate",
-            children: [
-              { name: "Easing", value: 17010 },
-              { name: "FunctionSequence", value: 5842 },
-              {
-                name: "interpolate",
-                children: [
-                  { name: "ArrayInterpolator", value: 1983 },
-                  { name: "ColorInterpolator", value: 2047 },
-                  { name: "DateInterpolator", value: 1375 },
-                  { name: "Interpolator", value: 8746 },
-                  { name: "MatrixInterpolator", value: 2202 },
-                  { name: "NumberInterpolator", value: 1382 },
-                  { name: "ObjectInterpolator", value: 1629 },
-                  { name: "PointInterpolator", value: 1675 },
-                  { name: "RectangleInterpolator", value: 2042 }
-                ]
-              },
-              { name: "ISchedulable", value: 1041 },
-              { name: "Parallel", value: 5176 },
-              { name: "Pause", value: 449 },
-              { name: "Scheduler", value: 5593 },
-              { name: "Sequence", value: 5534 },
-              { name: "Transition", value: 9201 },
-              { name: "Transitioner", value: 19975 },
-              { name: "TransitionEvent", value: 1116 },
-              { name: "Tween", value: 6006 }
-            ]
-          }
-        ]
-      },
+      checkListKmeans: [],
+      selectedCluster: [],
+      checkListHclust: [],
+      clusterResult: {},
+      clusterAttribute: "p_gas",
+      clusterDistance: "euclidean",
+      distanceOptions: [
+        {
+          value: "euclidean",
+          label: "Euclidean"
+        },
+        {
+          value: "manhattan",
+          label: "Manhattan"
+        },
+        {
+          value: "dtw",
+          label: "DTW"
+        }
+      ],
+      clusterLinkage: "average",
+      linkageOptions: [
+        {
+          value: "single",
+          label: "Single"
+        },
+        {
+          value: "complete",
+          label: "Complete"
+        },
+        {
+          value: "average",
+          label: "Average"
+        }
+      ],
+
+      attributeOptions: [
+        {
+          value: "p_gas",
+          label: "Gas"
+        },
+        {
+          value: "p_oil",
+          label: "Oil"
+        }
+      ],
+      wellsData: {},
       loading: true,
       clusterOption: {},
+      timeSeriesOption: {},
       clusterDialogVisible: false,
       clusterNumOption: [
         {
@@ -199,70 +256,208 @@ export default {
           label: "9"
         }
       ],
-      clusterNum: ""
+      clusterNum: "2"
     };
+  },
+  computed: {
+    series() {
+      var arr = [];
+      for (let i = 0; i < this.wellsData.wellsNum; i++) {
+        var dataType = this.wellsData.id[i];
+        var temp = {
+          symbol: "none",
+          name: this.wellsData.uwi[i],
+          type: "line",
+          data: this.wellsData[dataType]
+        };
+        arr[i] = temp;
+      }
+      return arr;
+    }
   },
   methods: {
     closeTab: function() {
       this.$emit("reset");
       this.$router.replace({ path: "/home" });
     },
+    refresh: function() {
+      this.$refs.cluster.refresh();
+      this.timeSeriesOption.legend = {
+        bottom: 0,
+        type: "scroll",
+        selected: {}
+      };
+      this.$refs.timeSeries.refresh();
+    },
+    returnList: function(list) {
+      var nodeList = {};
+      if (list) {
+        var stack = [];
+        stack.push(list);
+        while (stack.length != 0) {
+          var childrenItem = stack.pop();
+          if (childrenItem.isLeaf) {
+            var node = {};
+            node[childrenItem.name] = false;
+            Object.assign(nodeList, node);
+          }
+          var childrenList = childrenItem.children;
+          for (var i = childrenList.length - 1; i >= 0; i--) {
+            stack.push(childrenList[i]);
+          }
+        }
+      }
+      return nodeList;
+    },
     closeDialog: function() {
       this.clusterDialogVisible = false;
     },
+    chartEvent: function(params) {
+      var id = params.data.id;
+      var index = this.selectedCluster.indexOf(id);
+      if (index > -1) {
+        this.selectedCluster.splice(index, 1);
+      } else {
+        this.selectedCluster.push(id);
+      }
+
+      var tree = this.clusterResult;
+      var nodeList = {};
+      if (tree) {
+        var stack = [];
+        stack.push(tree);
+        while (stack.length != 0) {
+          var childrenItem = stack.pop();
+          var index = this.selectedCluster.indexOf(childrenItem.id);
+          if (index > -1) {
+            var list = this.$options.methods.returnList(childrenItem);
+            Object.assign(nodeList, list);
+          }
+          var childrenList = childrenItem.children;
+          for (var i = childrenList.length - 1; i >= 0; i--) {
+            stack.push(childrenList[i]);
+          }
+        }
+      }
+
+      this.timeSeriesOption.legend = {
+        bottom: 0,
+        type: "scroll",
+        selected: nodeList
+      };
+      this.$refs.timeSeries.refresh();
+    },
     applyHieClustering: function() {
-      this.clusterDialogVisible = true;
-
-      this.clusterOption = {
-        tooltip: {
-          trigger: "item",
-          triggerOn: "mousemove"
-        },
-        series: [
-          {
-            type: "tree",
-
-            data: [this.clusterData],
-
-            left: "2%",
-            right: "2%",
-            top: "8%",
-            bottom: "20%",
-
-            symbol: "emptyCircle",
-
-            orient: "vertical",
-
-            expandAndCollapse: true,
-
-            label: {
-              normal: {
-                position: "top",
-                rotate: -90,
-                verticalAlign: "middle",
-                align: "right",
-                fontSize: 9
-              }
+      const self = this;
+      self.clusterDialogVisible = true;
+      http
+        .get("/clusterHclust", {
+          params: {
+            clusterAttribute: self.clusterAttribute
+          }
+        })
+        .then(function(response) {
+          self.wellsData = response.data.wellsData;
+          self.clusterResult = response.data.clusterResult;
+          self.clusterOption = {
+            tooltip: {
+              trigger: "item",
+              triggerOn: "mousemove"
             },
+            series: [
+              {
+                type: "tree",
 
-            leaves: {
-              label: {
-                normal: {
-                  position: "bottom",
-                  rotate: -90,
-                  verticalAlign: "middle",
-                  align: "left"
+                data: [self.clusterResult],
+                initialTreeDepth: 20,
+
+                top: "2%",
+                left: "1%",
+                bottom: "20%",
+                right: "1%",
+
+                symbol: "emptyCircle",
+                orient: "vertical",
+
+                expandAndCollapse: true,
+
+                label: {
+                  normal: {
+                    position: "right",
+                    verticalAlign: "middle",
+                    align: "right",
+                    fontSize: 9
+                  }
+                },
+                itemStyle: {},
+                leaves: {
+                  label: {
+                    normal: {
+                      position: "left",
+                      rotate: -90,
+                      verticalAlign: "middle",
+                      align: "left"
+                    }
+                  }
+                },
+
+                animationDurationUpdate: 750
+              }
+            ]
+          };
+          self.timeSeriesOption = {
+            tooltip: {
+              trigger: "axis"
+            },
+            grid: {
+              left: "3%",
+              bottom: "20%",
+              containLabel: true
+            },
+            legend: {
+              bottom: 0,
+              type: "scroll"
+            },
+            dataZoom: [
+              {
+                type: "inside"
+              },
+              {
+                type: "slider",
+                bottom: 25
+              }
+            ],
+            toolbox: {
+              feature: {
+                saveAsImage: {
+                  title: "Save"
                 }
               }
             },
-
-            animationDurationUpdate: 750
-          }
-        ]
-      };
+            xAxis: {
+              name: "months",
+              type: "category",
+              boundaryGap: false,
+              data: self.wellsData.label
+            },
+            yAxis: {
+              name: "m³",
+              type: "value"
+            },
+            series: self.series
+          };
+        });
     },
     applyClustering: function() {
-      this.$emit("clustering", this.checkList, this.clusterNum);
+      console.log(this.checkListKmeans);
+      if (this.checkListKmeans.length != 0) {
+        this.$emit("clustering", this.checkListKmeans, this.clusterNum);
+      } else {
+        this.$notify.info({
+          title: "error",
+          message: "Please select parameters"
+        });
+      }
     }
   }
 };
@@ -325,5 +520,37 @@ export default {
 .el-col {
   text-align: left;
   padding-left: 20px;
+}
+
+.cluster {
+  width: 950px;
+  height: 300px;
+}
+
+.time-series {
+  width: 950px;
+  height: 300px;
+}
+
+.clo-button {
+  position: absolute;
+  top: 700px;
+  right: 100px;
+}
+
+.ref-button {
+  position: absolute;
+  top: 700px;
+  right: 200px;
+}
+.input-label {
+  display: inline-block;
+  width: 135px;
+  text-align: left;
+  font-size: 16px;
+}
+
+.input-row {
+  margin: 3px 0 8px;
 }
 </style>

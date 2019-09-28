@@ -2,20 +2,78 @@ var db = require('../db')
 var _ = require('lodash')
 
 const kmeans = require('ml-kmeans')
-var checkList
-var clusterNum
+const {
+  agnes
+} = require('ml-hclust');
+const {
+  euclidean
+} = require('ml-distance-euclidean');
 
-var wellsQueryAttribute = []
-var statisticsQueryAttribute = []
+// For hcluster
+var wellsData = {}
 
-var dataFromWells
-var dataFromStatistics
-var data = []
 
-var attributeArr
+function getClusterResult(tree) {
+  var id = 0
+  tree.traverse((cluster) => {
+    if (cluster.isLeaf) {
+      cluster.name = wellsData.uwi[cluster.index];
+      cluster.height = undefined;
+      cluster.size = undefined;
+      cluster.index = undefined;
+      cluster.id = id;
+      id++
+    } else {
+      cluster.name = cluster.size;
+      cluster.height = undefined;
+      cluster.size = undefined;
+      cluster.index = undefined;
+      cluster.id = id
+      id++
+    }
+  });
+  return tree;
+}
+
+function getDataFeature() {
+  var clusterData = []
+  var number = []
+  var maximum = []
+
+  for (let i = 0; i < wellsData.id.length; i++) {
+    var feature = [];
+    var nums = wellsData[wellsData.id[i]].length;
+    feature.push(nums);
+    number.push(nums);
+    var max = Math.max.apply(null, wellsData[wellsData.id[i]]);
+    feature.push(max);
+    maximum.push(max);
+    var index = wellsData[wellsData.id[i]].indexOf(max);
+    var percent = (nums - index) / nums;
+    feature.push(percent);
+    clusterData.push(feature);
+  };
+  n = Math.max.apply(null, number);
+  m = Math.max.apply(null, maximum);
+  for (let i = 0; i < wellsData.id.length; i++) {
+    clusterData[i][0] = clusterData[i][0] / n
+    clusterData[i][1] = clusterData[i][1] / m
+  }
+  return clusterData
+
+}
+
 
 module.exports = {
   async clusterKmeans(ctx) {
+    var checkList
+    var clusterNum
+    var wellsQueryAttribute = []
+    var statisticsQueryAttribute = []
+    var dataFromWells
+    var dataFromStatistics
+    var data = []
+    var attributeArr
     checkList = ctx.query.checkList
     clusterNum = ctx.query.clusterNum
     clusterNum = parseInt(clusterNum)
@@ -67,7 +125,10 @@ module.exports = {
     if (_.includes(checkList, 'Steam Injection')) {
       statisticsQueryAttribute = statisticsQueryAttribute.concat('st_avg_injection_steam')
     }
-    var temp = [['st_injector_w_id', 'w_id']]
+    var temp = [
+      ['st_injector_w_id', 'w_id'],
+    ];
+
     temp = temp.concat(statisticsQueryAttribute)
     await db.Statistics.findAll({
       attributes: temp
@@ -76,7 +137,10 @@ module.exports = {
       statistic = JSON.parse(statistic)
       dataFromStatistics = statistic
     })
-    temp = [['st_producer_w_id', 'w_id']]
+    temp = [
+      ['st_producer_w_id', 'w_id'],
+    ];
+
     temp = temp.concat(statisticsQueryAttribute)
     await db.Statistics.findAll({
       attributes: temp
@@ -124,7 +188,10 @@ module.exports = {
     }
 
     // use K-means to classify all the point
-    var ans = kmeans(data, clusterNum)
+    var ans = kmeans(data, clusterNum, {
+      initialization: 'kmeans++',
+      seed: 1
+    })
     ans = ans.clusters
 
     // return the response data
@@ -142,5 +209,84 @@ module.exports = {
       return 'Cluster' + index
     })
     ctx.response.body = response
+  },
+
+
+  async clusterHclust(ctx) {
+    // get wells data
+    var attribute = ctx.query.clusterAttribute
+    var points = []
+
+    db.Production.belongsTo(db.Wells, {
+      foreignKey: 'w_id'
+    })
+
+    await db.Production.findAll({
+      include: [{
+        model: db.Wells,
+        required: true,
+        where: {
+          w_type: "PRODUCER"
+        },
+        attributes: [
+          ['w_uwi', 'uwi'],
+          ['w_type', 'type']
+        ]
+      }],
+      attributes: [
+        ['w_id', 'wid'],
+        [attribute, 'value']
+      ]
+    }).then(production => {
+      production = JSON.stringify(production)
+      production = JSON.parse(production)
+      points = _.concat(points, production)
+    })
+
+
+    var id = _.uniqBy(points, 'wid')
+    wellsData.id = _.map(id, (o) => {
+      return o.wid
+    })
+
+    wellsData.uwi = _.map(id, (o) => {
+      return o.well.uwi
+    })
+
+    for (let i = 0; i < wellsData.id.length; i++) {
+      wellsData[wellsData.id[i]] = []
+    }
+
+    _.map(points, (o) => {
+      wellsData[o.wid].push(o.value)
+    })
+
+
+    var arr = new Array()
+    for (i = 0; i < 120; i++) {
+      arr[i] = i + 1
+    }
+    wellsData.label = arr
+    wellsData.wellsNum = wellsData.id.length
+
+    //get cluster result
+
+    var clusterData = getDataFeature()
+
+
+    var tree = agnes(clusterData, {
+      distanceFunction: euclidean,
+      method: 'average'
+    });
+
+    var clusterResult = getClusterResult(tree);
+
+    var response = {
+      wellsData,
+      clusterResult
+    };
+
+    ctx.response.body = response;
   }
+
 }

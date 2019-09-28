@@ -86,7 +86,7 @@
       <maplegend />
       <!-- Classification Legend -->
       <transition name="fade" mode="in-out">
-        <classificationlegend
+        <Legendbox
           v-if="showLegend"
           :category-type-arr="categoryTypeArr"
           :catagory-type-num="catagoryTypeNum"
@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import { Navbar, Sidebar, Maplegend, Classificationlegend } from "./components";
+import { Navbar, Sidebar, Maplegend, Legendbox } from "./components";
 import ResizeMixin from "./mixin/resizeHandler";
 import polygonMixin from "./mixin/polygonFunction";
 import classifyMixin from "./mixin/classifyFunction";
@@ -126,7 +126,7 @@ export default {
     Navbar,
     Sidebar,
     Maplegend,
-    Classificationlegend
+    Legendbox
   },
   mixins: [ResizeMixin, polygonMixin, classifyMixin],
   data() {

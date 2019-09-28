@@ -119,6 +119,7 @@
       >
         <v-chart :options="timeSeriesOption" style="width:100%;" />
         <span slot="footer" class="dialog-footer">
+          <el-button @click="changeOption()">{{changeSelection}}</el-button>
           <el-button type="primary" @click="timeSeriesDialogVisible = false">Close</el-button>
         </span>
       </el-dialog>
@@ -137,6 +138,7 @@ export default {
   data() {
     return {
       activeCollapse: "1",
+      changeSelection: "Unselect All",
       barChartType: "",
       pieChartType: "",
       timeSeriesType: "",
@@ -331,6 +333,59 @@ export default {
     closeTab: function() {
       this.$store.dispatch("map/changeUWI", "");
       this.$router.replace({ path: "/home" });
+    },
+    changeOption: function() {
+      if (this.changeSelection == "Unselect All") {
+        this.timeSeriesOption.legend = {
+          data: this.timeSeriesLegend,
+          orient: "vertical",
+          right: "right",
+          top: 50,
+          selected: {
+            "Cumulative Gas(m³)": false,
+            "Cumulative Hours": false,
+            "Cumulative Oil Bitumen(m³)": false,
+            "Cumulative Water(m³)": false,
+            "Gas(m³)": false,
+            "Gas Fluid Ratio": false,
+            "Gas Oil Ratio": false,
+            "Hours": false,
+            "Oil(m³)": false,
+            "Oil Cut(%)": false,
+            "Total Fluid(m³)": false,
+            "Water(m³)": false,
+            "Water Cut(%)": false,
+            "Water Gas Ratio": false,
+            "Water Oil Ratio": false
+          }
+        };
+        this.changeSelection = "Select All";
+      } else {
+        this.timeSeriesOption.legend = {
+          data: this.timeSeriesLegend,
+          orient: "vertical",
+          right: "right",
+          top: 50,
+          selected: {
+            "Cumulative Gas(m³)": true,
+            "Cumulative Hours": true,
+            "Cumulative Oil Bitumen(m³)": true,
+            "Cumulative Water(m³)": true,
+            "Gas(m³)": true,
+            "Gas Fluid Ratio": true,
+            "Gas Oil Ratio": true,
+            "Hours": true,
+            "Oil(m³)": true,
+            "Oil Cut(%)": true,
+            "Total Fluid(m³)": true,
+            "Water(m³)": true,
+            "Water Cut(%)": true,
+            "Water Gas Ratio": true,
+            "Water Oil Ratio": true
+          }
+        };
+        this.changeSelection = "Unselect All";
+      }
     },
     updateUWI: function(e) {
       this.$store.dispatch("map/changeUWI", e.target.value);
