@@ -53,7 +53,7 @@
             type="primary"
             plain
             style="width:200px;margin-top:15px;"
-            @click="applyClustering()"
+            @click="applyKmeansClustering()"
           >Apply</el-button>
         </el-collapse-item>
         <!-- Hierarchical Clustering -->
@@ -75,14 +75,6 @@
               <el-row>
                 <el-col :span="15">
                   <el-checkbox label="Peak Production Rate" />
-                </el-col>
-                <el-col :span="15">
-                  <el-checkbox label="Nominal Decline Rate" />
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="15">
-                  <el-checkbox label="Arps Decline Curve Exponent" />
                 </el-col>
               </el-row>
             </el-checkbox-group>
@@ -131,6 +123,20 @@
             </div>
           </div>
 
+          <div class="input-row">
+            <div class="input-label">Depth</div>
+            <div style="display: inline-block;">
+              <el-select v-model="clusterDepth" placeholder="Select" style="width:140px;">
+                <el-option
+                  v-for="item in depthOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+          </div>
+
           <el-button
             type="primary"
             plain
@@ -139,44 +145,21 @@
           >Apply</el-button>
         </el-collapse-item>
       </el-collapse>
-
-      <el-dialog
-        title="Hierarchical Clustering"
-        :visible.sync="clusterDialogVisible"
-        width="1000px"
-        :before-close="closeDialog"
-        :modal-append-to-body="false"
-        top="2vh"
-      >
-        <div style="height: 650px;">
-          <v-chart ref="cluster" :options="clusterOption" class="cluster" @click="chartEvent" />
-          <v-chart ref="timeSeries" :options="timeSeriesOption" class="time-series" />
-          <el-button type="primary" class="ref-button" @click="refresh">Refresh</el-button>
-          <el-button type="primary" class="clo-button" @click="closeDialog">Close</el-button>
-        </div>
-      </el-dialog>
     </div>
   </div>
 </template>
 
 
 <script>
-import ECharts from "vue-echarts";
-import http from "@/utils/http";
-var echarts = require("echarts");
 export default {
-  components: {
-    "v-chart": ECharts
-  },
   data() {
     return {
       activeCollapse: "",
       checkListKmeans: [],
-      selectedCluster: [],
       checkListHclust: [],
-      clusterResult: {},
       clusterAttribute: "p_gas",
       clusterDistance: "euclidean",
+      clusterDepth: "3",
       distanceOptions: [
         {
           value: "euclidean",
@@ -185,10 +168,44 @@ export default {
         {
           value: "manhattan",
           label: "Manhattan"
+        }
+      ],
+      depthOptions: [
+        {
+          value: "1",
+          label: "1"
         },
         {
-          value: "dtw",
-          label: "DTW"
+          value: "2",
+          label: "2"
+        },
+        {
+          value: "3",
+          label: "3"
+        },
+        {
+          value: "4",
+          label: "4"
+        },
+        {
+          value: "5",
+          label: "5"
+        },
+        {
+          value: "6",
+          label: "6"
+        },
+        {
+          value: "7",
+          label: "7"
+        },
+        {
+          value: "8",
+          label: "8"
+        },
+        {
+          value: "9",
+          label: "9"
         }
       ],
       clusterLinkage: "average",
@@ -217,11 +234,7 @@ export default {
           label: "Oil"
         }
       ],
-      wellsData: {},
       loading: true,
-      clusterOption: {},
-      timeSeriesOption: {},
-      clusterDialogVisible: false,
       clusterNumOption: [
         {
           value: "2",
@@ -259,199 +272,25 @@ export default {
       clusterNum: "2"
     };
   },
-  computed: {
-    series() {
-      var arr = [];
-      for (let i = 0; i < this.wellsData.wellsNum; i++) {
-        var dataType = this.wellsData.id[i];
-        var temp = {
-          symbol: "none",
-          name: this.wellsData.uwi[i],
-          type: "line",
-          data: this.wellsData[dataType]
-        };
-        arr[i] = temp;
-      }
-      return arr;
-    }
-  },
+
   methods: {
     closeTab: function() {
       this.$emit("reset");
       this.$router.replace({ path: "/home" });
     },
-    refresh: function() {
-      this.$refs.cluster.refresh();
-      this.timeSeriesOption.legend = {
-        bottom: 0,
-        type: "scroll",
-        selected: {}
-      };
-      this.$refs.timeSeries.refresh();
-    },
-    returnList: function(list) {
-      var nodeList = {};
-      if (list) {
-        var stack = [];
-        stack.push(list);
-        while (stack.length != 0) {
-          var childrenItem = stack.pop();
-          if (childrenItem.isLeaf) {
-            var node = {};
-            node[childrenItem.name] = false;
-            Object.assign(nodeList, node);
-          }
-          var childrenList = childrenItem.children;
-          for (var i = childrenList.length - 1; i >= 0; i--) {
-            stack.push(childrenList[i]);
-          }
-        }
-      }
-      return nodeList;
-    },
-    closeDialog: function() {
-      this.clusterDialogVisible = false;
-    },
-    chartEvent: function(params) {
-      var id = params.data.id;
-      var index = this.selectedCluster.indexOf(id);
-      if (index > -1) {
-        this.selectedCluster.splice(index, 1);
-      } else {
-        this.selectedCluster.push(id);
-      }
-
-      var tree = this.clusterResult;
-      var nodeList = {};
-      if (tree) {
-        var stack = [];
-        stack.push(tree);
-        while (stack.length != 0) {
-          var childrenItem = stack.pop();
-          var index = this.selectedCluster.indexOf(childrenItem.id);
-          if (index > -1) {
-            var list = this.$options.methods.returnList(childrenItem);
-            Object.assign(nodeList, list);
-          }
-          var childrenList = childrenItem.children;
-          for (var i = childrenList.length - 1; i >= 0; i--) {
-            stack.push(childrenList[i]);
-          }
-        }
-      }
-
-      this.timeSeriesOption.legend = {
-        bottom: 0,
-        type: "scroll",
-        selected: nodeList
-      };
-      this.$refs.timeSeries.refresh();
-    },
     applyHieClustering: function() {
-      const self = this;
-      self.clusterDialogVisible = true;
-      http
-        .get("/clusterHclust", {
-          params: {
-            clusterAttribute: self.clusterAttribute
-          }
-        })
-        .then(function(response) {
-          self.wellsData = response.data.wellsData;
-          self.clusterResult = response.data.clusterResult;
-          self.clusterOption = {
-            tooltip: {
-              trigger: "item",
-              triggerOn: "mousemove"
-            },
-            series: [
-              {
-                type: "tree",
-
-                data: [self.clusterResult],
-                initialTreeDepth: 20,
-
-                top: "2%",
-                left: "1%",
-                bottom: "20%",
-                right: "1%",
-
-                symbol: "emptyCircle",
-                orient: "vertical",
-
-                expandAndCollapse: true,
-
-                label: {
-                  normal: {
-                    position: "right",
-                    verticalAlign: "middle",
-                    align: "right",
-                    fontSize: 9
-                  }
-                },
-                itemStyle: {},
-                leaves: {
-                  label: {
-                    normal: {
-                      position: "left",
-                      rotate: -90,
-                      verticalAlign: "middle",
-                      align: "left"
-                    }
-                  }
-                },
-
-                animationDurationUpdate: 750
-              }
-            ]
-          };
-          self.timeSeriesOption = {
-            tooltip: {
-              trigger: "axis"
-            },
-            grid: {
-              left: "3%",
-              bottom: "20%",
-              containLabel: true
-            },
-            legend: {
-              bottom: 0,
-              type: "scroll"
-            },
-            dataZoom: [
-              {
-                type: "inside"
-              },
-              {
-                type: "slider",
-                bottom: 25
-              }
-            ],
-            toolbox: {
-              feature: {
-                saveAsImage: {
-                  title: "Save"
-                }
-              }
-            },
-            xAxis: {
-              name: "months",
-              type: "category",
-              boundaryGap: false,
-              data: self.wellsData.label
-            },
-            yAxis: {
-              name: "m³",
-              type: "value"
-            },
-            series: self.series
-          };
+      if (this.checkListHclust.length != 0) {
+        this.$emit("hclustClustering",this.checkListHclust, this.clusterAttribute,this.clusterDistance,this.clusterLinkage,this.clusterDepth);
+      } else {
+        this.$notify.info({
+          title: "error",
+          message: "Please select parameters"
         });
+      }
     },
-    applyClustering: function() {
-      console.log(this.checkListKmeans);
+    applyKmeansClustering: function() {
       if (this.checkListKmeans.length != 0) {
-        this.$emit("clustering", this.checkListKmeans, this.clusterNum);
+        this.$emit("kmeansClustering", this.checkListKmeans, this.clusterNum);
       } else {
         this.$notify.info({
           title: "error",
@@ -522,27 +361,6 @@ export default {
   padding-left: 20px;
 }
 
-.cluster {
-  width: 950px;
-  height: 300px;
-}
-
-.time-series {
-  width: 950px;
-  height: 300px;
-}
-
-.clo-button {
-  position: absolute;
-  top: 700px;
-  right: 100px;
-}
-
-.ref-button {
-  position: absolute;
-  top: 700px;
-  right: 200px;
-}
 .input-label {
   display: inline-block;
   width: 135px;

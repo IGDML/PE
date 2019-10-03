@@ -84,13 +84,17 @@
       </section>
       <!-- Map Legend -->
       <maplegend />
-      <!-- Classification Legend -->
+      <!-- Legend box -->
       <transition name="fade" mode="in-out">
         <Legendbox
           v-if="showLegend"
           :category-type-arr="categoryTypeArr"
           :catagory-type-num="catagoryTypeNum"
           :legend-title="legendTitle"
+          :is-hclust="isHclust"
+          :cluster-result="clusterResult"
+          :time-series-option="timeSeriesOption"
+          :cluster-option="clusterOption"
           @close="closeLegend($event)"
         />
       </transition>
@@ -104,7 +108,8 @@
         @search="updataMapData($event)"
         @polygon="polygonOperation($event)"
         @classification="classification($event, ...arguments)"
-        @clustering="clustering($event, ...arguments)"
+        @kmeansClustering="kmeansClustering($event, ...arguments)"
+        @hclustClustering="hclustClustering($event, ...arguments)"
         @reset="init($event)"
       />
     </transition>
@@ -132,6 +137,8 @@ export default {
   data() {
     return {
       topMarkers: [],
+      timeSeries: {},
+      isHclust: false,
       bottomMarkers: [],
       paths: [],
       infoPosition: null,
@@ -159,8 +166,7 @@ export default {
       categoryTypeArr: [],
       catagoryTypeNum: null,
       showLegend: false,
-      legendTitle: null,
-      
+      legendTitle: null
     };
   },
   computed: {
@@ -300,9 +306,9 @@ export default {
           break;
       }
     },
-    clustering(params, checkList, clusterNum) {
+    kmeansClustering(params, checkList, clusterNum) {
       var self = this;
-      this.legendTitle = "Cluster K-means";
+      this.legendTitle = "K-means Clustering";
       http
         .get("/clusterKmeans", {
           params: {
@@ -314,8 +320,10 @@ export default {
           }
         })
         .then(function(response) {
+          self.isHclust = false;
           self.categoryTypeArr = response.data.categoryTypeArr;
           self.catagoryTypeNum = response.data.categoryTypeArr.length;
+
           for (let i = 0; i < self.topMarkerNum; i++) {
             var point = response.data.points[i];
             for (let j = 0; j < self.catagoryTypeNum; j++) {
@@ -333,6 +341,117 @@ export default {
               }
             }
           }
+          self.update = true;
+          self.showLegend = true;
+        });
+    },
+    hclustClustering(params,checkList,clusterAttribute,clusterDistance,clusterLinkage,clusterDepth) {
+      var self = this;
+      this.legendTitle = "Hierarchical Clustering";
+      http
+        .get("/clusterHclust", {
+          params: {
+            checkList:checkList,
+            clusterAttribute: clusterAttribute,
+            clusterDistance:clusterDistance,
+            clusterLinkage:clusterLinkage,
+            clusterDepth:clusterDepth
+          },
+          paramsSerializer: function(params) {
+            return qs.stringify(params, { arrayFormat: "repeat" });
+          }
+        })
+
+        .then(function(response) {
+          self.isHclust = true;
+          self.timeSeries = response.data.timeSeries;
+          self.clusterResult = response.data.clusterResult;
+          self.clusterOption = {
+            tooltip: {
+              trigger: "item",
+              triggerOn: "mousemove"
+            },
+            series: [
+              {
+                type: "tree",
+
+                data: [self.clusterResult],
+                initialTreeDepth: clusterDepth,
+
+                top: "5%",
+                left: "1%",
+                bottom: "40%",
+                right: "1%",
+
+                symbol: "circle",
+                orient: "vertical",
+
+                expandAndCollapse: true,
+
+                label: {
+                  normal: {
+                    position: "inside",
+                    fontSize: 9,
+                    
+                  }
+                },
+                itemStyle: {color:"white"},
+                leaves: {
+                  label: {
+                    normal: {
+                      position: "left",
+                      rotate: -90,
+                      align: "left"
+                    }
+                  }
+                },
+
+                animationDurationUpdate: 750
+              }
+            ]
+          };
+          self.timeSeriesOption = {
+            tooltip: {
+              trigger: "axis"
+            },
+            grid: {
+              left: "3%",
+              bottom: "20%",
+              containLabel: true
+            },
+            legend: {
+              bottom: 0,
+              type: "scroll",
+              selected:self.timeSeries.legend
+            },
+            dataZoom: [
+              {
+                type: "inside"
+              },
+              {
+                type: "slider",
+                bottom: 25
+              }
+            ],
+            toolbox: {
+              feature: {
+                saveAsImage: {
+                  title: "Save"
+                }
+              }
+            },
+            xAxis: {
+              name: "months",
+              type: "category",
+              boundaryGap: false,
+              data: self.timeSeries.label
+            },
+            yAxis: {
+              name: "m³",
+              type: "value"
+            },
+            series: self.timeSeries.series
+          };
           self.update = false;
           self.update = true;
           self.showLegend = true;
@@ -348,7 +467,6 @@ export default {
 <style lang="scss" scoped>
 @import "~@/styles/mixin.scss";
 @import "~@/styles/variables.scss";
-
 
 .app-wrapper {
   @include clearfix;
@@ -416,5 +534,4 @@ export default {
 .label-content {
   font-size: 15px;
 }
-
 </style>

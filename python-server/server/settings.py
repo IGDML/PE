@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cluster',
     'neural_network',
 ]
 
@@ -81,7 +80,7 @@ DATABASES = {
         'NAME': 'dbpetroleum',
         'USER': 'postgres',
         'PASSWORD': 'password',
-        'HOST': '35.238.247.40',
+        'HOST': '127.0.0.1',
         'PORT': '',
     }
 }

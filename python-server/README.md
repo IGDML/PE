@@ -11,9 +11,7 @@ It is hard to add up some python based data mining functions to an exsiting back
 #### Architecture
 ![](https://upload-images.jianshu.io/upload_images/17071502-e584f6ab7d7e1471.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240 "Software achitecture")
 ## Features
-+ Cluster
-  + k-means
-  + hierarchical clustering
+
 + Neural network
   + artificial neural networks
   + Long short-term memory

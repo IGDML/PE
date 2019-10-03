@@ -198,14 +198,6 @@ export default {
         {
           value: "Production",
           label: "Production"
-        },
-        {
-          value: "SOR",
-          label: "SOR"
-        },
-        {
-          value: "Well Status",
-          label: "Well Status"
         }
       ],
       barChartDialogVisible: false,
