@@ -5,6 +5,9 @@ const tokens = {
   },
   editor: {
     token: 'editor-token'
+  },
+  jin: {
+    token: 'jin-token'
   }
 }
 
@@ -22,6 +25,13 @@ const users = {
     avatar: 'http://cdn.onlinewebfonts.com/svg/img_508630.png',
     name: 'Normal Editor',
     password: 'password'
+  },
+  'jin-token': {
+    roles: ['jin'],
+    introduction: 'I am Jin',
+    avatar: 'http://cdn.onlinewebfonts.com/svg/img_508630.png',
+    name: 'Jin',
+    password: 'suncorenergy'
   }
 }
 

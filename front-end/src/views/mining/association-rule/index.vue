@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
       <transition name="fade" mode="in-out">
         <div class="association" v-if="showAssociation" >
           <el-table :data="associationData" :header-cell-style="{'text-align':'center'}"  stripe border height="50vh"  style="width: 100%">
@@ -7,7 +7,7 @@
             <el-table-column prop="Expression" label="Expression" width="500" />
             <el-table-column prop="Condifence" label="Condifence" width="100" />
           </el-table>
-          <el-button style="margin-left: 600px;" type="primary" @click="closeAssociation">Close</el-button>
+          <el-button style="margin-left:600px;" type="primary" @click="closeAssociation">Close</el-button>
         </div>
       </transition>
   </div>
